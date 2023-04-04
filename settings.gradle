@@ -1,8 +1,20 @@
-rootProject.name = 'java-airplay'
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'DroidPlay'
 include('lib')
 include('server')
-include('player:app')
-include('player:gstreamer')
-include('player:h264-dump')
-include('player:vlc')
-include('player:ffmpeg')
+include('app');
