@@ -18,14 +18,15 @@ public class AirPlayBonjour {
     private static final String AIRTUNES_SERVICE_TYPE = "_raop._tcp.";
 
     private final Context context;
+    private AirPlayConfig config;
     private String serverName;
     private boolean useAacEldAudio;
     private NsdManager.RegistrationListener registrationListener;
 
     public AirPlayBonjour(Context context, AirPlayConfig config) {
         this.context = context;
+        this.config = config;
         this.serverName = config.getServerName();
-        this.useAacEldAudio = config.isAacEldAudioSupported();
         initializeRegistrationListener();
     }
 
@@ -62,12 +63,7 @@ public class AirPlayBonjour {
         serviceInfo.setServiceType(AIRPLAY_SERVICE_TYPE);
         serviceInfo.setPort(port);
         serviceInfo.setAttribute("deviceid", deviceId);
-        // Enable AudioFormat1 and AudioFormat4 features if supported
-        if (useAacEldAudio) {
-            serviceInfo.setAttribute("features", "0x5A7FFFF7,0x1E");
-        } else {
-            serviceInfo.setAttribute("features", "0x5A5BFFF7,0x1E");
-        }
+        serviceInfo.setAttribute("features", config.getStringFeatures());
         serviceInfo.setAttribute("srcvers", "220.68");
         serviceInfo.setAttribute("flags", "0x44");
         serviceInfo.setAttribute("vv", "2");
@@ -92,7 +88,7 @@ public class AirPlayBonjour {
         serviceInfo.setAttribute("et", "0,3,5");
         serviceInfo.setAttribute("ek", "1");
         // serviceInfo.setAttribute("vv", "2");
-        serviceInfo.setAttribute("ft", "0x5A7FFFF7,0x1E");
+        serviceInfo.setAttribute("ft", config.getStringFeatures());
         serviceInfo.setAttribute("am", "AppleTV3,2C");
         serviceInfo.setAttribute("md", "0,1,2");
         // serviceInfo.setAttribute("rhd", "5.6.0.0");

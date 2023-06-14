@@ -12,6 +12,7 @@ public class AirPlayServer {
 
     public AirPlayServer(
             Context context, AirPlayConfig airPlayConfig, AirPlayConsumer airPlayConsumer) {
+        AirPlayFeatures features = AirPlayFeatures.getDefaults();
         airPlayBonjour = new AirPlayBonjour(context, airPlayConfig);
         controlServer = new ControlServer(airPlayConfig, airPlayConsumer);
     }

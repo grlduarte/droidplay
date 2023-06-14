@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         Log.d(TAG, "Creating activity");
 
         try {
-            AirPlayConfig config = new AirPlayConfig();
+            AirPlayConfig config = AirPlayConfig.DISPLAY_METRICS_30FPS;
             config.setAacEldAudioSupported(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
 
             streamConsumer = new StreamConsumer(config);
