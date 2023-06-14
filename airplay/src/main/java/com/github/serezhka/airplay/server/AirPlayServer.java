@@ -12,7 +12,7 @@ public class AirPlayServer {
 
     public AirPlayServer(
             Context context, AirPlayConfig airPlayConfig, AirPlayConsumer airPlayConsumer) {
-        airPlayBonjour = new AirPlayBonjour(context, airPlayConfig.getServerName());
+        airPlayBonjour = new AirPlayBonjour(context, airPlayConfig);
         controlServer = new ControlServer(airPlayConfig, airPlayConsumer);
     }
 

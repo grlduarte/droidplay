@@ -7,6 +7,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import com.github.serezhka.airplay.server.AirPlayConfig;
+
 /** Registers airplay/airtunes service mdns */
 public class AirPlayBonjour {
     private static String TAG = "AirPlayBonjour";
@@ -17,11 +19,13 @@ public class AirPlayBonjour {
 
     private final Context context;
     private String serverName;
+    private boolean useAacEldAudio;
     private NsdManager.RegistrationListener registrationListener;
 
-    public AirPlayBonjour(Context context, String serverName) {
+    public AirPlayBonjour(Context context, AirPlayConfig config) {
         this.context = context;
-        this.serverName = serverName;
+        this.serverName = config.getServerName();
+        this.useAacEldAudio = config.isAacEldAudioSupported();
         initializeRegistrationListener();
     }
 
@@ -58,7 +62,12 @@ public class AirPlayBonjour {
         serviceInfo.setServiceType(AIRPLAY_SERVICE_TYPE);
         serviceInfo.setPort(port);
         serviceInfo.setAttribute("deviceid", deviceId);
-        serviceInfo.setAttribute("features", "0x5A7FFFF7,0x1E"); // 0x5A7FFFF7 E4
+        // Enable AudioFormat1 and AudioFormat4 features if supported
+        if (useAacEldAudio) {
+            serviceInfo.setAttribute("features", "0x5A7FFFF7,0x1E");
+        } else {
+            serviceInfo.setAttribute("features", "0x5A5BFFF7,0x1E");
+        }
         serviceInfo.setAttribute("srcvers", "220.68");
         serviceInfo.setAttribute("flags", "0x44");
         serviceInfo.setAttribute("vv", "2");

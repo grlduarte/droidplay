@@ -1,6 +1,7 @@
 package com.grlduarte.droidplay;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         try {
             AirPlayConfig config = new AirPlayConfig();
+            config.setAacEldAudioSupported(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
+
             streamConsumer = new StreamConsumer(config);
             airPlayServer = new AirPlayServer(this, config, streamConsumer);
             airPlayServer.start();

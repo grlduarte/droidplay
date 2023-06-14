@@ -8,4 +8,5 @@ public class AirPlayConfig {
     private int width = 1080;
     private int height = 1920;
     private int fps = 24;
+    private boolean aacEldAudioSupported = false;
 }

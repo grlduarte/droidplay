@@ -54,7 +54,12 @@ public class PropertyListUtil {
         response.put("audioFormats", audioFormats);
         response.put("audioLatencies", audioLatencies);
         response.put("displays", displays);
-        response.put("features", 130367356919L);
+        // Enable AudioFormat1 and AudioFormat4 features if supported
+        if (airPlayConfig.isAacEldAudioSupported()) {
+            response.put("features", 130367356919L);
+        } else {
+            response.put("features", 130364997623L);
+        }
         response.put("keepAliveSendStatsAsBody", 1);
         response.put("model", "AppleTV3,2");
         response.put("name", "Apple TV");
