@@ -28,7 +28,7 @@ public class FairPlayAudioDecryptor {
 
     public void decrypt(byte[] audio, int audioLength) throws Exception {
         initAesCbcCipher();
-        aesCbcDecrypt.update(audio, 0, audioLength / 16 * 16, audio, 0);
+        aesCbcDecrypt.doFinal(audio, 0, audioLength / 16 * 16, audio, 0);
     }
 
     private void initAesCbcCipher() throws Exception {

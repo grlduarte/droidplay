@@ -12,6 +12,7 @@ import com.github.serezhka.airplay.lib.VideoStreamInfo;
 import com.github.serezhka.airplay.server.AirPlayConfig;
 import com.github.serezhka.airplay.server.AirPlayConsumer;
 import com.github.serezhka.airplay.server.AirPlayServer;
+import com.grlduarte.droidplay.decoder.AudioDecoder;
 import com.grlduarte.droidplay.decoder.DataPacket;
 import com.grlduarte.droidplay.decoder.VideoDecoder;
 
@@ -27,6 +28,7 @@ public class AirPlaySurfaceView extends SurfaceView {
     private String serverName;
 
     private VideoDecoder videoDecoder;
+    private AudioDecoder audioDecoder;
 
     public AirPlaySurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -84,13 +86,23 @@ public class AirPlaySurfaceView extends SurfaceView {
                 }
 
                 @Override
-                public void onAudioFormat(AudioStreamInfo audioStreamInfo) {}
+                public void onAudioFormat(AudioStreamInfo audioStreamInfo) {
+                    audioDecoder = new AudioDecoder(airPlayConfig);
+                    audioDecoder.startDecoder();
+                }
 
                 @Override
-                public void onAudio(byte[] packet) {}
+                public void onAudio(byte[] packet) {
+                    if (audioDecoder != null) audioDecoder.addToBuffer(new DataPacket(packet));
+                }
 
                 @Override
-                public void onAudioSrcDisconnect() {}
+                public void onAudioSrcDisconnect() {
+                    if (audioDecoder != null) {
+                        audioDecoder.releaseDecoder();
+                        audioDecoder = null;
+                    }
+                }
             };
 
     private SurfaceHolder.Callback surfaceHolderCallback =

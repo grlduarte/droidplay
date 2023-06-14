@@ -49,6 +49,10 @@ public class AirPlayConfig {
         return features.toString();
     }
 
+    public boolean isAacEldAudioSupported() {
+        return features.isAacEldAudioSupported();
+    }
+
     public void setAacEldAudioSupported(boolean supported) {
         features.setAacEldAudioSupported(supported);
     }

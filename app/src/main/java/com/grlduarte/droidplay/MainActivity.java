@@ -1,6 +1,7 @@
 package com.grlduarte.droidplay;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
         airPlaySurfaceView = (AirPlaySurfaceView) findViewById(R.id.airplay_stream);
         airPlaySurfaceView.init(visibilityCallback);
+        Log.d(TAG, "AirPlay initialized");
     }
 
     private AirPlaySurfaceView.VisibilityCallback visibilityCallback =
