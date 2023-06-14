@@ -5,7 +5,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.util.Log;
-import android.view.Surface;
+import android.view.SurfaceHolder;
 
 import com.github.serezhka.airplay.server.AirPlayConfig;
 
@@ -17,7 +17,7 @@ import java.util.List;
 // examples:
 // https://github.com/taehwandev/MediaCodecExample
 // https://github.com/lucribas/AirplayServer/blob/master/app/src/main/java/com/fang/myapplication/player/VideoPlayer.java
-public class VideoDecoder extends MediaCodec.Callback {
+public class VideoDecoder extends Thread {
     private static String TAG = "VideoDecoder";
 
     private final String mimeType = MediaFormat.MIMETYPE_VIDEO_AVC;
@@ -26,57 +26,83 @@ public class VideoDecoder extends MediaCodec.Callback {
 
     private MediaCodec decoder = null;
     private MediaFormat mediaFormat = null;
-    private Surface surface;
+    private SurfaceHolder holder;
     private List<DataPacket> listBuffer = Collections.synchronizedList(new ArrayList<DataPacket>());
+    private List<Integer> inputBuffersIndex =
+            Collections.synchronizedList(new ArrayList<Integer>());
     private boolean isRunning = false;
 
     public VideoDecoder(AirPlayConfig config) {
         videoWidth = config.getWidth();
         videoHeight = config.getHeight();
-    }
-
-    public void init(Surface surface) {
-        this.surface = surface;
-
-        boolean wasRunning = isRunning;
-        if (decoder != null) release();
 
         try {
             decoder = MediaCodec.createDecoderByType(mimeType);
-            mediaFormat = getMediaFormat();
             decoder.setVideoScalingMode(MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+            mediaFormat = getMediaFormat();
+            super.start();
         } catch (Exception e) {
             Log.e(TAG, "Failed while initializing audio decoder", e);
         }
+    }
 
-        if (wasRunning) start();
+    public void startDecoder(SurfaceHolder surfaceHolder) {
+        this.holder = surfaceHolder;
+
+        if (decoder != null) {
+            try {
+                decoder.configure(mediaFormat, holder.getSurface(), null, 0);
+                decoder.setCallback(mediaCodecCallback);
+            } catch (IllegalStateException e) {
+                // decoder already configured, just start it
+            }
+
+            decoder.start();
+            isRunning = true;
+        }
+    }
+
+    public void releaseDecoder() {
+        super.interrupt();
+
+        isRunning = false;
+        listBuffer.clear();
+        inputBuffersIndex.clear();
+
+        if (decoder != null) {
+            decoder.stop();
+            decoder.release();
+            decoder = null;
+        }
     }
 
     public void addToBuffer(DataPacket packet) {
         listBuffer.add(packet);
     }
 
-    public void start() {
+    @Override
+    public void run() {
+        super.run();
+
         try {
-            decoder.configure(mediaFormat, surface, null, 0);
-            decoder.setCallback(this);
-        } catch (IllegalStateException e) {
-            // decoder already configured, just start it
+            while (true) {
+                if (!isRunning | (listBuffer.size() == 0) | (inputBuffersIndex.size() == 0)) {
+                    sleep(1);
+                } else {
+                    try {
+                        int index = inputBuffersIndex.remove(0);
+                        byte[] packet = listBuffer.remove(0).data;
+                        ByteBuffer inputBuf = decoder.getInputBuffer(index);
+                        inputBuf.put(packet, 0, packet.length);
+                        decoder.queueInputBuffer(index, 0, packet.length, 0, 0);
+                    } catch (IllegalStateException e) {
+                        Log.e(TAG, "Not in executing state, skipping");
+                    }
+                }
+            }
+        } catch (InterruptedException e) {
+            return;
         }
-
-        isRunning = true;
-        decoder.start();
-    }
-
-    public void stop() {
-        isRunning = false;
-        decoder.stop();
-    }
-
-    public void release() {
-        stop();
-        decoder.release();
-        decoder = null;
     }
 
     private boolean decoderSupportsAndroidRLowLatency(MediaCodecInfo decoderInfo, String mimeType) {
@@ -111,42 +137,31 @@ public class VideoDecoder extends MediaCodec.Callback {
         return mediaFormat;
     }
 
-    @Override
-    public void onInputBufferAvailable(MediaCodec codec, int index) {
-        while (listBuffer.size() == 0) {
-            if (isRunning) continue;
+    private MediaCodec.Callback mediaCodecCallback =
+            new MediaCodec.Callback() {
+                @Override
+                public void onInputBufferAvailable(MediaCodec codec, int index) {
+                    inputBuffersIndex.add(index);
+                }
 
-            return;
-        }
+                @Override
+                public void onOutputBufferAvailable(
+                        MediaCodec codec, int index, MediaCodec.BufferInfo info) {
+                    try {
+                        decoder.releaseOutputBuffer(index, true);
+                    } catch (IllegalStateException e) {
+                        Log.e(TAG, "Not in executing state, skipping");
+                    }
+                }
 
-        try {
-            byte[] packet = listBuffer.remove(0).data;
-            ByteBuffer inputBuf = decoder.getInputBuffer(index);
-            inputBuf.put(packet, 0, packet.length);
-            decoder.queueInputBuffer(index, 0, packet.length, 0, 0);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Not in executing state, skipping");
-            return;
-        }
-    }
+                @Override
+                public void onError(MediaCodec codec, MediaCodec.CodecException e) {
+                    Log.e(TAG, "Error while decoding packet", e);
+                }
 
-    @Override
-    public void onOutputBufferAvailable(MediaCodec codec, int index, MediaCodec.BufferInfo info) {
-        try {
-            decoder.releaseOutputBuffer(index, true);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Not in executing state, skipping");
-            return;
-        }
-    }
-
-    @Override
-    public void onError(MediaCodec codec, MediaCodec.CodecException e) {
-        Log.e(TAG, "Error while decoding packet", e);
-    }
-
-    @Override
-    public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
-        Log.d(TAG, "Output format changed: " + format.toString());
-    }
+                @Override
+                public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
+                    Log.d(TAG, "Output format changed: " + format.toString());
+                }
+            };
 }

@@ -70,15 +70,17 @@ public class AirPlaySurfaceView extends SurfaceView {
 
                 @Override
                 public void onVideo(byte[] packet) {
-                    videoDecoder.addToBuffer(new DataPacket(packet));
+                    if (videoDecoder != null) videoDecoder.addToBuffer(new DataPacket(packet));
                 }
 
                 @Override
                 public void onVideoSrcDisconnect() {
                     visibilityCallback.hideSurface();
 
-                    videoDecoder.release();
-                    videoDecoder = null;
+                    if (videoDecoder != null) {
+                        videoDecoder.releaseDecoder();
+                        videoDecoder = null;
+                    }
                 }
 
                 @Override
@@ -95,8 +97,7 @@ public class AirPlaySurfaceView extends SurfaceView {
             new SurfaceHolder.Callback() {
                 @Override
                 public void surfaceCreated(SurfaceHolder holder) {
-                    videoDecoder.init(holder.getSurface());
-                    videoDecoder.start();
+                    videoDecoder.startDecoder(holder);
                 }
 
                 @Override
