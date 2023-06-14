@@ -1,9 +1,12 @@
 package com.github.serezhka.airplay.server.internal;
 
+import android.util.Log;
+
 import com.github.serezhka.airplay.server.AirPlayConfig;
 import com.github.serezhka.airplay.server.AirPlayConsumer;
 import com.github.serezhka.airplay.server.internal.handler.control.ControlHandler;
 import com.github.serezhka.airplay.server.internal.handler.session.SessionManager;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -21,12 +24,11 @@ import io.netty.handler.codec.rtsp.RtspEncoder;
 import io.netty.handler.logging.ByteBufFormat;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.net.InetSocketAddress;
-
-import android.util.Log;
 
 @RequiredArgsConstructor
 public class ControlServer implements Runnable {
@@ -39,8 +41,7 @@ public class ControlServer implements Runnable {
 
     private Thread thread;
 
-    @Getter
-    private int port;
+    @Getter private int port;
 
     public void start() throws InterruptedException {
         thread = new Thread(this);
@@ -67,24 +68,35 @@ public class ControlServer implements Runnable {
                     .group(bossGroup, workerGroup)
                     .channel(serverSocketChannelClass())
                     .localAddress(new InetSocketAddress(0)) // bind random port
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(final SocketChannel ch) {
-                            ch.pipeline().addLast(
-                                    new RtspDecoder(),
-                                    new RtspEncoder(),
-                                    new HttpObjectAggregator(64 * 1024),
-                                    new LoggingHandler(LogLevel.INFO, ByteBufFormat.SIMPLE),
-                                    new ControlHandler(sessionManager, airPlayConfig, airPlayConsumer));
-                        }
-                    })
+                    .childHandler(
+                            new ChannelInitializer<SocketChannel>() {
+                                @Override
+                                public void initChannel(final SocketChannel ch) {
+                                    ch.pipeline()
+                                            .addLast(
+                                                    new RtspDecoder(),
+                                                    new RtspEncoder(),
+                                                    new HttpObjectAggregator(64 * 1024),
+                                                    new LoggingHandler(
+                                                            LogLevel.INFO, ByteBufFormat.SIMPLE),
+                                                    new ControlHandler(
+                                                            sessionManager,
+                                                            airPlayConfig,
+                                                            airPlayConsumer));
+                                }
+                            })
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .childOption(ChannelOption.SO_REUSEADDR, true)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             var channelFuture = serverBootstrap.bind().sync();
 
-            Log.i(TAG, String.format("AirPlay control server listening on port: %d",
-                    port = ((InetSocketAddress) channelFuture.channel().localAddress()).getPort()));
+            Log.i(
+                    TAG,
+                    String.format(
+                            "AirPlay control server listening on port: %d",
+                            port =
+                                    ((InetSocketAddress) channelFuture.channel().localAddress())
+                                            .getPort()));
 
             synchronized (this) {
                 this.notify();

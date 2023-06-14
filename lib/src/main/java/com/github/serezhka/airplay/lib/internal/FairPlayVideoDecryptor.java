@@ -1,11 +1,12 @@
 package com.github.serezhka.airplay.lib.internal;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class FairPlayVideoDecryptor {
 
@@ -18,7 +19,8 @@ public class FairPlayVideoDecryptor {
 
     private int nextDecryptCount;
 
-    public FairPlayVideoDecryptor(byte[] aesKey, byte[] sharedSecret, String streamConnectionID) throws Exception {
+    public FairPlayVideoDecryptor(byte[] aesKey, byte[] sharedSecret, String streamConnectionID)
+            throws Exception {
         this.aesKey = aesKey;
         this.sharedSecret = sharedSecret;
         this.streamConnectionID = streamConnectionID;
@@ -72,6 +74,9 @@ public class FairPlayVideoDecryptor {
         System.arraycopy(hash1, 0, decryptAesKey, 0, 16);
         System.arraycopy(hash2, 0, decryptAesIV, 0, 16);
 
-        aesCtrDecrypt.init(Cipher.DECRYPT_MODE, new SecretKeySpec(decryptAesKey, "AES"), new IvParameterSpec(decryptAesIV));
+        aesCtrDecrypt.init(
+                Cipher.DECRYPT_MODE,
+                new SecretKeySpec(decryptAesKey, "AES"),
+                new IvParameterSpec(decryptAesIV));
     }
 }

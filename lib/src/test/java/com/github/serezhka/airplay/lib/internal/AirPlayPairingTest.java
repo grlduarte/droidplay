@@ -1,16 +1,18 @@
 package com.github.serezhka.airplay.lib.internal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.github.serezhka.airplay.lib.AirPlay;
+
 import net.i2p.crypto.eddsa.EdDSAEngine;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import net.i2p.crypto.eddsa.KeyPairGenerator;
+
 import org.junit.jupiter.api.Test;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -18,8 +20,9 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 class AirPlayPairingTest {
 
@@ -45,13 +48,15 @@ class AirPlayPairingTest {
         pairVerify1Request[2] = 0;
         pairVerify1Request[3] = 0;
         System.arraycopy(curve25519KeyPair.getPublicKey(), 0, pairVerify1Request, 4, 32);
-        System.arraycopy(((EdDSAPublicKey) keyPair.getPublic()).getAbyte(), 0, pairVerify1Request, 36, 32);
+        System.arraycopy(
+                ((EdDSAPublicKey) keyPair.getPublic()).getAbyte(), 0, pairVerify1Request, 36, 32);
         ByteArrayOutputStream pairVerifyResponse = new ByteArrayOutputStream(96);
         airPlay.pairVerify(new ByteArrayInputStream(pairVerify1Request), pairVerifyResponse);
 
         // /pair-verify 2 request
         byte[] atvPublicKey = Arrays.copyOfRange(pairVerifyResponse.toByteArray(), 0, 32);
-        byte[] sharedSecret = curve25519.calculateAgreement(atvPublicKey, curve25519KeyPair.getPrivateKey());
+        byte[] sharedSecret =
+                curve25519.calculateAgreement(atvPublicKey, curve25519KeyPair.getPrivateKey());
 
         MessageDigest sha512Digest = MessageDigest.getInstance("SHA-512");
         sha512Digest.update("Pair-Verify-AES-Key".getBytes(StandardCharsets.UTF_8));
@@ -63,7 +68,10 @@ class AirPlayPairingTest {
         byte[] sharedSecretSha512AesIV = Arrays.copyOfRange(sha512Digest.digest(), 0, 16);
 
         Cipher aesCtr128Encrypt = Cipher.getInstance("AES/CTR/NoPadding");
-        aesCtr128Encrypt.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(sharedSecretSha512AesKey, "AES"), new IvParameterSpec(sharedSecretSha512AesIV));
+        aesCtr128Encrypt.init(
+                Cipher.ENCRYPT_MODE,
+                new SecretKeySpec(sharedSecretSha512AesKey, "AES"),
+                new IvParameterSpec(sharedSecretSha512AesIV));
 
         aesCtr128Encrypt.update(Arrays.copyOfRange(pairVerifyResponse.toByteArray(), 32, 96));
 

@@ -1,7 +1,12 @@
 package com.github.serezhka.airplay.server.internal.decoder;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.github.serezhka.airplay.server.internal.packet.VideoPacket;
+
 import io.netty.buffer.Unpooled;
+
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -10,16 +15,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class VideoDecoderTest {
 
     private final VideoDecoder decoder = new VideoDecoder();
 
     @Test
     void testDecodeVideoPacketType0Success() throws Exception {
-        Path resource = Paths.get(VideoDecoderTest.class.getResource("/video_packet_type_0").toURI());
+        Path resource =
+                Paths.get(VideoDecoderTest.class.getResource("/video_packet_type_0").toURI());
         byte[] bytes = Files.readAllBytes(resource);
 
         List<Object> result = new ArrayList<>();
@@ -33,7 +36,8 @@ class VideoDecoderTest {
 
     @Test
     void testDecodeVideoPacketType1Success() throws Exception {
-        Path resource = Paths.get(VideoDecoderTest.class.getResource("/video_packet_type_1").toURI());
+        Path resource =
+                Paths.get(VideoDecoderTest.class.getResource("/video_packet_type_1").toURI());
         byte[] bytes = Files.readAllBytes(resource);
 
         List<Object> result = new ArrayList<>();
@@ -47,7 +51,8 @@ class VideoDecoderTest {
 
     @Test
     void testDecodeVideoPacketType5Skipped() throws Exception {
-        Path resource = Paths.get(VideoDecoderTest.class.getResource("/video_packet_type_5").toURI());
+        Path resource =
+                Paths.get(VideoDecoderTest.class.getResource("/video_packet_type_5").toURI());
         byte[] bytes = Files.readAllBytes(resource);
 
         List<Object> result = new ArrayList<>();

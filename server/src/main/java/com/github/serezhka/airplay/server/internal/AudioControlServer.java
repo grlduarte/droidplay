@@ -1,6 +1,9 @@
 package com.github.serezhka.airplay.server.internal;
 
+import android.util.Log;
+
 import com.github.serezhka.airplay.server.internal.handler.audio.AudioControlHandler;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
@@ -12,8 +15,6 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
 import java.net.InetSocketAddress;
-
-import android.util.Log;
 
 public class AudioControlServer implements Runnable {
     private static String TAG = "AudioControlServer";
@@ -46,17 +47,26 @@ public class AudioControlServer implements Runnable {
                     .group(workerGroup)
                     .channel(datagramChannelClass())
                     .localAddress(new InetSocketAddress(0)) // bind random port
-                    .handler(new ChannelInitializer<DatagramChannel>() {
-                        @Override
-                        public void initChannel(final DatagramChannel ch) {
-                            ch.pipeline().addLast("audioControlHandler", new AudioControlHandler());
-                        }
-                    });
+                    .handler(
+                            new ChannelInitializer<DatagramChannel>() {
+                                @Override
+                                public void initChannel(final DatagramChannel ch) {
+                                    ch.pipeline()
+                                            .addLast(
+                                                    "audioControlHandler",
+                                                    new AudioControlHandler());
+                                }
+                            });
 
             var channelFuture = bootstrap.bind().sync();
 
-            Log.i(TAG, String.format("AirPlay audio control server listening on port: %d",
-                    port = ((InetSocketAddress) channelFuture.channel().localAddress()).getPort()));
+            Log.i(
+                    TAG,
+                    String.format(
+                            "AirPlay audio control server listening on port: %d",
+                            port =
+                                    ((InetSocketAddress) channelFuture.channel().localAddress())
+                                            .getPort()));
 
             synchronized (this) {
                 this.notify();

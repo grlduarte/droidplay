@@ -1,10 +1,10 @@
 package com.github.serezhka.airplay.lib.internal;
 
+import static com.github.serezhka.airplay.lib.internal.OmgHaxConst.*;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-
-import static com.github.serezhka.airplay.lib.internal.OmgHaxConst.*;
 
 public class OmgHax {
 
@@ -31,7 +31,7 @@ public class OmgHax {
     void decryptMessage(byte[] messageIn, byte[] decryptedMessage) {
         byte[] buffer = new byte[16];
         byte tmp;
-        int mode = messageIn[12];  // 0,1,2,3
+        int mode = messageIn[12]; // 0,1,2,3
 
         // For M0-M6 we follow the same pattern
         for (int i = 0; i < 8; i++) {
@@ -43,55 +43,108 @@ public class OmgHax {
                     buffer[j] = messageIn[(0x10 * (i + 1)) + j];
                 }
             }
-            // do this permutation and update 9 times. Could this be cycle(), or the reverse of cycle()?
+            // do this permutation and update 9 times. Could this be cycle(), or the reverse of
+            // cycle()?
             for (int j = 0; j < 9; j++) {
                 int base = 0x80 - 0x10 * j;
 
-                buffer[0x0] = (byte) (message_table_index(base + 0x0)[buffer[0x0] & 0xFF] ^ message_key[mode][base + 0x0]);
-                buffer[0x4] = (byte) (message_table_index(base + 0x4)[buffer[0x4] & 0xFF] ^ message_key[mode][base + 0x4]);
-                buffer[0x8] = (byte) (message_table_index(base + 0x8)[buffer[0x8] & 0xFF] ^ message_key[mode][base + 0x8]);
-                buffer[0xc] = (byte) (message_table_index(base + 0xc)[buffer[0xc] & 0xFF] ^ message_key[mode][base + 0xc]);
+                buffer[0x0] =
+                        (byte)
+                                (message_table_index(base + 0x0)[buffer[0x0] & 0xFF]
+                                        ^ message_key[mode][base + 0x0]);
+                buffer[0x4] =
+                        (byte)
+                                (message_table_index(base + 0x4)[buffer[0x4] & 0xFF]
+                                        ^ message_key[mode][base + 0x4]);
+                buffer[0x8] =
+                        (byte)
+                                (message_table_index(base + 0x8)[buffer[0x8] & 0xFF]
+                                        ^ message_key[mode][base + 0x8]);
+                buffer[0xc] =
+                        (byte)
+                                (message_table_index(base + 0xc)[buffer[0xc] & 0xFF]
+                                        ^ message_key[mode][base + 0xc]);
 
                 tmp = buffer[0x0d];
-                buffer[0xd] = (byte) (message_table_index(base + 0xd)[buffer[0x9] & 0xFF] ^ message_key[mode][base + 0xd]);
-                buffer[0x9] = (byte) (message_table_index(base + 0x9)[buffer[0x5] & 0xFF] ^ message_key[mode][base + 0x9]);
-                buffer[0x5] = (byte) (message_table_index(base + 0x5)[buffer[0x1] & 0xFF] ^ message_key[mode][base + 0x5]);
-                buffer[0x1] = (byte) (message_table_index(base + 0x1)[tmp & 0xFF] ^ message_key[mode][base + 0x1]);
+                buffer[0xd] =
+                        (byte)
+                                (message_table_index(base + 0xd)[buffer[0x9] & 0xFF]
+                                        ^ message_key[mode][base + 0xd]);
+                buffer[0x9] =
+                        (byte)
+                                (message_table_index(base + 0x9)[buffer[0x5] & 0xFF]
+                                        ^ message_key[mode][base + 0x9]);
+                buffer[0x5] =
+                        (byte)
+                                (message_table_index(base + 0x5)[buffer[0x1] & 0xFF]
+                                        ^ message_key[mode][base + 0x5]);
+                buffer[0x1] =
+                        (byte)
+                                (message_table_index(base + 0x1)[tmp & 0xFF]
+                                        ^ message_key[mode][base + 0x1]);
 
                 tmp = buffer[0x02];
-                buffer[0x2] = (byte) (message_table_index(base + 0x2)[buffer[0xa] & 0xFF] ^ message_key[mode][base + 0x2]);
-                buffer[0xa] = (byte) (message_table_index(base + 0xa)[tmp & 0xFF] ^ message_key[mode][base + 0xa]);
+                buffer[0x2] =
+                        (byte)
+                                (message_table_index(base + 0x2)[buffer[0xa] & 0xFF]
+                                        ^ message_key[mode][base + 0x2]);
+                buffer[0xa] =
+                        (byte)
+                                (message_table_index(base + 0xa)[tmp & 0xFF]
+                                        ^ message_key[mode][base + 0xa]);
                 tmp = buffer[0x06];
-                buffer[0x6] = (byte) (message_table_index(base + 0x6)[buffer[0xe] & 0xFF] ^ message_key[mode][base + 0x6]);
-                buffer[0xe] = (byte) (message_table_index(base + 0xe)[tmp & 0xFF] ^ message_key[mode][base + 0xe]);
+                buffer[0x6] =
+                        (byte)
+                                (message_table_index(base + 0x6)[buffer[0xe] & 0xFF]
+                                        ^ message_key[mode][base + 0x6]);
+                buffer[0xe] =
+                        (byte)
+                                (message_table_index(base + 0xe)[tmp & 0xFF]
+                                        ^ message_key[mode][base + 0xe]);
 
                 tmp = buffer[0x3];
-                buffer[0x3] = (byte) (message_table_index(base + 0x3)[buffer[0x7] & 0xFF] ^ message_key[mode][base + 0x3]);
-                buffer[0x7] = (byte) (message_table_index(base + 0x7)[buffer[0xb] & 0xFF] ^ message_key[mode][base + 0x7]);
-                buffer[0xb] = (byte) (message_table_index(base + 0xb)[buffer[0xf] & 0xFF] ^ message_key[mode][base + 0xb]);
-                buffer[0xf] = (byte) (message_table_index(base + 0xf)[tmp & 0xFF] ^ message_key[mode][base + 0xf]);
+                buffer[0x3] =
+                        (byte)
+                                (message_table_index(base + 0x3)[buffer[0x7] & 0xFF]
+                                        ^ message_key[mode][base + 0x3]);
+                buffer[0x7] =
+                        (byte)
+                                (message_table_index(base + 0x7)[buffer[0xb] & 0xFF]
+                                        ^ message_key[mode][base + 0x7]);
+                buffer[0xb] =
+                        (byte)
+                                (message_table_index(base + 0xb)[buffer[0xf] & 0xFF]
+                                        ^ message_key[mode][base + 0xb]);
+                buffer[0xf] =
+                        (byte)
+                                (message_table_index(base + 0xf)[tmp & 0xFF]
+                                        ^ message_key[mode][base + 0xf]);
 
                 // Now we must replace the entire buffer with 4 words that we read and xor together
 
                 ByteBuffer block = ByteBuffer.wrap(buffer);
                 block.order(ByteOrder.LITTLE_ENDIAN);
 
-                block.putInt(table_s9[0x000 + (buffer[0x0] & 0xFF)] ^
-                        table_s9[0x100 + (buffer[0x1] & 0xFF)] ^
-                        table_s9[0x200 + (buffer[0x2] & 0xFF)] ^
-                        table_s9[0x300 + (buffer[0x3] & 0xFF)]);
-                block.putInt(table_s9[0x000 + (buffer[0x4] & 0xFF)] ^
-                        table_s9[0x100 + (buffer[0x5] & 0xFF)] ^
-                        table_s9[0x200 + (buffer[0x6] & 0xFF)] ^
-                        table_s9[0x300 + (buffer[0x7] & 0xFF)]);
-                block.putInt(table_s9[0x000 + (buffer[0x8] & 0xFF)] ^
-                        table_s9[0x100 + (buffer[0x9] & 0xFF)] ^
-                        table_s9[0x200 + (buffer[0xa] & 0xFF)] ^
-                        table_s9[0x300 + (buffer[0xb] & 0xFF)]);
-                block.putInt(table_s9[0x000 + (buffer[0xc] & 0xFF)] ^
-                        table_s9[0x100 + (buffer[0xd] & 0xFF)] ^
-                        table_s9[0x200 + (buffer[0xe] & 0xFF)] ^
-                        table_s9[0x300 + (buffer[0xf] & 0xFF)]);
+                block.putInt(
+                        table_s9[0x000 + (buffer[0x0] & 0xFF)]
+                                ^ table_s9[0x100 + (buffer[0x1] & 0xFF)]
+                                ^ table_s9[0x200 + (buffer[0x2] & 0xFF)]
+                                ^ table_s9[0x300 + (buffer[0x3] & 0xFF)]);
+                block.putInt(
+                        table_s9[0x000 + (buffer[0x4] & 0xFF)]
+                                ^ table_s9[0x100 + (buffer[0x5] & 0xFF)]
+                                ^ table_s9[0x200 + (buffer[0x6] & 0xFF)]
+                                ^ table_s9[0x300 + (buffer[0x7] & 0xFF)]);
+                block.putInt(
+                        table_s9[0x000 + (buffer[0x8] & 0xFF)]
+                                ^ table_s9[0x100 + (buffer[0x9] & 0xFF)]
+                                ^ table_s9[0x200 + (buffer[0xa] & 0xFF)]
+                                ^ table_s9[0x300 + (buffer[0xb] & 0xFF)]);
+                block.putInt(
+                        table_s9[0x000 + (buffer[0xc] & 0xFF)]
+                                ^ table_s9[0x100 + (buffer[0xd] & 0xFF)]
+                                ^ table_s9[0x200 + (buffer[0xe] & 0xFF)]
+                                ^ table_s9[0x300 + (buffer[0xf] & 0xFF)]);
             }
             // Next, another permute with a different table
             buffer[0x0] = table_s10[(0x0 << 8) + (buffer[0x0] & 0xFF)];
@@ -118,11 +171,15 @@ public class OmgHax {
             buffer[0xb] = table_s10[(0xb << 8) + (buffer[0xf] & 0xFF)];
             buffer[0xf] = table_s10[(0xf << 8) + (tmp & 0xFF)];
 
-            // And finally xor with the previous block of the message, except in mode-2 where we do this in reverse
+            // And finally xor with the previous block of the message, except in mode-2 where we do
+            // this in reverse
             byte[] xorResult = new byte[16];
             if (mode == 2 || mode == 1 || mode == 0) {
                 if (i > 0) {
-                    xor_blocks(buffer, Arrays.copyOfRange(messageIn, 0x10 * i, 0x10 * i + 16), xorResult); // remember that the first 0x10 bytes are the header
+                    xor_blocks(
+                            buffer,
+                            Arrays.copyOfRange(messageIn, 0x10 * i, 0x10 * i + 16),
+                            xorResult); // remember that the first 0x10 bytes are the header
                     System.arraycopy(xorResult, 0, decryptedMessage, 0x10 * i, 16);
                 } else {
                     xor_blocks(buffer, message_iv[mode], xorResult);
@@ -131,7 +188,10 @@ public class OmgHax {
 
             } else {
                 if (i < 7) {
-                    xor_blocks(buffer, Arrays.copyOfRange(messageIn, 0x70 - 0x10 * i, (0x70 - 0x10 * i) + 16), xorResult);
+                    xor_blocks(
+                            buffer,
+                            Arrays.copyOfRange(messageIn, 0x70 - 0x10 * i, (0x70 - 0x10 * i) + 16),
+                            xorResult);
                     System.arraycopy(xorResult, 0, decryptedMessage, 0x70 - 0x10 * i, 16);
                 } else {
                     xor_blocks(buffer, message_iv[mode], xorResult);
@@ -201,7 +261,6 @@ public class OmgHax {
             for (int j = 0; j < 4; j++) {
                 wrap.putInt(key_schedule[i][j]);
             }
-
         }
     }
 
@@ -228,7 +287,11 @@ public class OmgHax {
             ByteBuffer sessionKeyWrap = ByteBuffer.wrap(sessionKey);
             sessionKeyWrap.order(ByteOrder.LITTLE_ENDIAN);
             for (int i = 0; i < 4; i++) {
-                sessionKeyWrap.putInt(i * 4, (int) ((sessionKeyWrap.getInt(i * 4) + md5Wrap.getInt(i * 4)) & 0xffffffffL));
+                sessionKeyWrap.putInt(
+                        i * 4,
+                        (int)
+                                ((sessionKeyWrap.getInt(i * 4) + md5Wrap.getInt(i * 4))
+                                        & 0xffffffffL));
             }
         }
 
@@ -261,7 +324,8 @@ public class OmgHax {
 
         for (int round = 0; round < 9; round++) {
             // E
-            // Note that table_s5 is a table of 4-byte words. Therefore we do not need to <<2 these indices
+            // Note that table_s5 is a table of 4-byte words. Therefore we do not need to <<2 these
+            // indices
             // TODO: Are these just T-tables?
 
             byte[] key = new byte[16];
@@ -291,15 +355,19 @@ public class OmgHax {
 
             // D is a bit of a nightmare, but it is really not as complicated as you might think
             bWords.putInt(4, ab);
-            bWords.putInt(8, table_s5[(block[11] & 0xff) ^ (key[11] & 0xff)] ^
-                    table_s6[(block[10] & 0xff) ^ (key[10] & 0xff)] ^
-                    table_s7[(block[9] & 0xff) ^ (key[9] & 0xff)] ^
-                    table_s8[(block[8] & 0xff) ^ (key[8] & 0xff)]);
+            bWords.putInt(
+                    8,
+                    table_s5[(block[11] & 0xff) ^ (key[11] & 0xff)]
+                            ^ table_s6[(block[10] & 0xff) ^ (key[10] & 0xff)]
+                            ^ table_s7[(block[9] & 0xff) ^ (key[9] & 0xff)]
+                            ^ table_s8[(block[8] & 0xff) ^ (key[8] & 0xff)]);
 
-            bWords.putInt(12, table_s5[(block[15] & 0xff) ^ (key[15] & 0xff)] ^
-                    table_s6[(block[14] & 0xff) ^ (key[14] & 0xff)] ^
-                    table_s7[(block[13] & 0xff) ^ (key[13] & 0xff)] ^
-                    table_s8[(block[12] & 0xff) ^ (key[12] & 0xff)]);
+            bWords.putInt(
+                    12,
+                    table_s5[(block[15] & 0xff) ^ (key[15] & 0xff)]
+                            ^ table_s6[(block[14] & 0xff) ^ (key[14] & 0xff)]
+                            ^ table_s7[(block[13] & 0xff) ^ (key[13] & 0xff)]
+                            ^ table_s8[(block[12] & 0xff) ^ (key[12] & 0xff)]);
 
             // In the last round, instead of the permute, we do F
             permute_block_2(block, 8 - round);

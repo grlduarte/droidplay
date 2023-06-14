@@ -5,12 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.github.serezhka.airplay.server.AirPlayServer;
 import com.github.serezhka.airplay.server.AirPlayConfig;
+import com.github.serezhka.airplay.server.AirPlayServer;
 
-public class MainActivity extends AppCompatActivity  implements SurfaceHolder.Callback {
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     private static final String TAG = "MainActivity";
 
     private AirPlayServer airPlayServer;
@@ -50,14 +51,14 @@ public class MainActivity extends AppCompatActivity  implements SurfaceHolder.Ca
     public void surfaceCreated(SurfaceHolder holder) {
         try {
             streamConsumer.init(holder.getSurface());
-        } catch (Exception ex){
+        } catch (Exception ex) {
             Log.e(TAG, ex.toString(), ex);
         }
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) { }
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) { }
+    public void surfaceDestroyed(SurfaceHolder holder) {}
 }

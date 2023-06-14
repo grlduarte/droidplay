@@ -1,15 +1,13 @@
 package com.github.serezhka.airplay.lib;
 
 import android.content.Context;
-import android.net.wifi.WifiManager;
-import android.net.wifi.WifiInfo;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
-/**
- * Registers airplay/airtunes service mdns
- */
+/** Registers airplay/airtunes service mdns */
 public class AirPlayBonjour {
     private static String TAG = "AirPlayBonjour";
 
@@ -67,7 +65,8 @@ public class AirPlayBonjour {
         serviceInfo.setAttribute("model", "AppleTV3,2C");
         serviceInfo.setAttribute("rhd", "5.6.0.0");
         serviceInfo.setAttribute("pw", "false");
-        serviceInfo.setAttribute("pk", "f3769a660475d27b4f6040381d784645e13e21c53e6d2da6a8c3d757086fc336");
+        serviceInfo.setAttribute(
+                "pk", "f3769a660475d27b4f6040381d784645e13e21c53e6d2da6a8c3d757086fc336");
         serviceInfo.setAttribute("rmodel", "PC1.0");
         serviceInfo.setAttribute("rrv", "1.01");
         serviceInfo.setAttribute("rsv", "1.00");
@@ -83,12 +82,12 @@ public class AirPlayBonjour {
         serviceInfo.setAttribute("da", "true");
         serviceInfo.setAttribute("et", "0,3,5");
         serviceInfo.setAttribute("ek", "1");
-        //serviceInfo.setAttribute("vv", "2");
+        // serviceInfo.setAttribute("vv", "2");
         serviceInfo.setAttribute("ft", "0x5A7FFFF7,0x1E");
         serviceInfo.setAttribute("am", "AppleTV3,2C");
         serviceInfo.setAttribute("md", "0,1,2");
-        //serviceInfo.setAttribute("rhd", "5.6.0.0");
-        //serviceInfo.setAttribute("pw", "false");
+        // serviceInfo.setAttribute("rhd", "5.6.0.0");
+        // serviceInfo.setAttribute("pw", "false");
         serviceInfo.setAttribute("sr", "44100");
         serviceInfo.setAttribute("ss", "16");
         serviceInfo.setAttribute("sv", "false");
@@ -98,41 +97,49 @@ public class AirPlayBonjour {
         serviceInfo.setAttribute("sf", "0x44");
         serviceInfo.setAttribute("vs", "220.68");
         serviceInfo.setAttribute("vn", "65537");
-        serviceInfo.setAttribute("pk", "f3769a660475d27b4f6040381d784645e13e21c53e6d2da6a8c3d757086fc336");
+        serviceInfo.setAttribute(
+                "pk", "f3769a660475d27b4f6040381d784645e13e21c53e6d2da6a8c3d757086fc336");
         return serviceInfo;
     }
 
     public void initializeRegistrationListener() {
         Log.d(TAG, "Creating registration listener");
-        registrationListener = new NsdManager.RegistrationListener() {
+        registrationListener =
+                new NsdManager.RegistrationListener() {
 
-            @Override
-            public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
-                // Save the service name. Android may have changed it in order to
-                // resolve a conflict, so update the name you initially requested
-                // with the name Android actually used.
-                serverName = NsdServiceInfo.getServiceName();
-                Log.d(TAG, String.format("Service registered as %s", serverName));
-            }
+                    @Override
+                    public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
+                        // Save the service name. Android may have changed it in order to
+                        // resolve a conflict, so update the name you initially requested
+                        // with the name Android actually used.
+                        serverName = NsdServiceInfo.getServiceName();
+                        Log.d(TAG, String.format("Service registered as %s", serverName));
+                    }
 
-            @Override
-            public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
-                // Registration failed! Put debugging code here to determine why.
-                Log.e(TAG, String.format("Service registration failed with error %d", errorCode));
-            }
+                    @Override
+                    public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+                        // Registration failed! Put debugging code here to determine why.
+                        Log.e(
+                                TAG,
+                                String.format(
+                                        "Service registration failed with error %d", errorCode));
+                    }
 
-            @Override
-            public void onServiceUnregistered(NsdServiceInfo arg0) {
-                // Service has been unregistered. This only happens when you call
-                // NsdManager.unregisterService() and pass in this listener.
-                Log.d(TAG, String.format("Service %s was unregistered", serverName));
-            }
+                    @Override
+                    public void onServiceUnregistered(NsdServiceInfo arg0) {
+                        // Service has been unregistered. This only happens when you call
+                        // NsdManager.unregisterService() and pass in this listener.
+                        Log.d(TAG, String.format("Service %s was unregistered", serverName));
+                    }
 
-            @Override
-            public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
-                // Unregistration failed. Put debugging code here to determine why.
-                Log.e(TAG, String.format("Service unregistration failed with error %d", errorCode));
-            }
-        };
+                    @Override
+                    public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+                        // Unregistration failed. Put debugging code here to determine why.
+                        Log.e(
+                                TAG,
+                                String.format(
+                                        "Service unregistration failed with error %d", errorCode));
+                    }
+                };
     }
 }

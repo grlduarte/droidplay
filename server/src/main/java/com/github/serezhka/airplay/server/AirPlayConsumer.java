@@ -3,8 +3,6 @@ package com.github.serezhka.airplay.server;
 import com.github.serezhka.airplay.lib.AudioStreamInfo;
 import com.github.serezhka.airplay.lib.VideoStreamInfo;
 
-import java.nio.file.Path;
-
 public interface AirPlayConsumer {
 
     void onVideoFormat(VideoStreamInfo videoStreamInfo);
@@ -19,6 +17,5 @@ public interface AirPlayConsumer {
 
     void onAudioSrcDisconnect();
 
-    default void onMediaPlaylist(String playlistUri) {
-    }
+    default void onMediaPlaylist(String playlistUri) {}
 }

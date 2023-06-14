@@ -81,7 +81,8 @@ public class PropertyListUtil {
         return BinaryPropertyListWriter.writeToArray(response);
     }
 
-    public static byte[] prepareSetupVideoResponse(int dataPort, int eventPort, int timingPort) throws Exception {
+    public static byte[] prepareSetupVideoResponse(int dataPort, int eventPort, int timingPort)
+            throws Exception {
         NSArray streams = new NSArray(1);
         NSDictionary dataStream = new NSDictionary();
         dataStream.put("dataPort", dataPort);

@@ -13,11 +13,20 @@ public class SapHash {
 
     void sap_hash(byte[] blockIn, byte[] keyOut) {
 
-        byte[] buffer0 = {-106, 95, -58, 83, -8, 70, -52, 24, -33, -66, -78, -8, 56, -41, -20, 34, 3, -47, 32, -113};
+        byte[] buffer0 = {
+            -106, 95, -58, 83, -8, 70, -52, 24, -33, -66, -78, -8, 56, -41, -20, 34, 3, -47, 32,
+            -113
+        };
         byte[] buffer1 = new byte[210];
-        byte[] buffer2 = {67, 84, 98, 122, 24, -61, -42, -77, -102, 86, -10, 28, 20, 63, 12, 29, 59, 54, -125, -79, 57, 81, 74, -86, 9, 62, -2, 68, -81, -34, -61, 32, -99, 66, 58};
+        byte[] buffer2 = {
+            67, 84, 98, 122, 24, -61, -42, -77, -102, 86, -10, 28, 20, 63, 12, 29, 59, 54, -125,
+            -79, 57, 81, 74, -86, 9, 62, -2, 68, -81, -34, -61, 32, -99, 66, 58
+        };
         byte[] buffer3 = new byte[132];
-        byte[] buffer4 = {-19, 37, -47, -69, -68, 39, -97, 2, -94, -87, 17, 0, 12, -77, 82, -64, -67, -29, 27, 73, -57};
+        byte[] buffer4 = {
+            -19, 37, -47, -69, -68, 39, -97, 2, -94, -87, 17, 0, 12, -77, 82, -64, -67, -29, 27, 73,
+            -57
+        };
         int[] i0_index = {18, 22, 23, 0, 5, 19, 32, 31, 10, 21, 30};
         byte w, x, y, z;
 
@@ -54,7 +63,8 @@ public class SapHash {
         for (int i = 0; i < 11; i++) {
             // Note that this is addition (mod 255) and not XOR
             // Also note that we only use certain indices
-            // And that index 3 is hard-coded to be 0x3d (Maybe we can hack this up by changing buffer3[0] to be 0xdc?
+            // And that index 3 is hard-coded to be 0x3d (Maybe we can hack this up by changing
+            // buffer3[0] to be 0xdc?
             if (i == 3) {
                 keyOut[i] = 0x3d;
             } else {

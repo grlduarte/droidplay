@@ -6,7 +6,8 @@ public class AudioStreamInfo implements MediaStreamInfo {
     private final AudioFormat audioFormat;
     private final int samplesPerFrame;
 
-    private AudioStreamInfo(CompressionType compressionType, AudioFormat audioFormat, int samplesPerFrame) {
+    private AudioStreamInfo(
+            CompressionType compressionType, AudioFormat audioFormat, int samplesPerFrame) {
         this.compressionType = compressionType;
         this.audioFormat = audioFormat;
         this.samplesPerFrame = samplesPerFrame;
@@ -128,10 +129,13 @@ public class AudioStreamInfo implements MediaStreamInfo {
 
     @Override
     public String toString() {
-        return "AudioStreamInfo{" +
-                "compressionType=" + compressionType +
-                ", audioFormat=" + audioFormat +
-                ", samplesPerFrame=" + samplesPerFrame +
-                '}';
+        return "AudioStreamInfo{"
+                + "compressionType="
+                + compressionType
+                + ", audioFormat="
+                + audioFormat
+                + ", samplesPerFrame="
+                + samplesPerFrame
+                + '}';
     }
 }

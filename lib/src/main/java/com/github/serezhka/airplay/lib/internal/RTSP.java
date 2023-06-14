@@ -1,17 +1,18 @@
 package com.github.serezhka.airplay.lib.internal;
 
+import android.util.Log;
+
 import com.dd.plist.BinaryPropertyListParser;
 import com.dd.plist.NSDictionary;
 import com.github.serezhka.airplay.lib.AudioStreamInfo;
 import com.github.serezhka.airplay.lib.MediaStreamInfo;
 import com.github.serezhka.airplay.lib.VideoStreamInfo;
+
 import net.i2p.crypto.eddsa.Utils;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Optional;
-
-import android.util.Log;
 
 public class RTSP {
     private static String TAG = "RTSP";
@@ -26,7 +27,11 @@ public class RTSP {
         if (setup.containsKey("ekey") || setup.containsKey("eiv")) {
             ekey = (byte[]) setup.get("ekey").toJavaObject();
             eiv = (byte[]) setup.get("eiv").toJavaObject();
-            Log.i(TAG, String.format("Encrypted AES key: %s, iv: %s", Utils.bytesToHex(ekey), Utils.bytesToHex(eiv)));
+            Log.i(
+                    TAG,
+                    String.format(
+                            "Encrypted AES key: %s, iv: %s",
+                            Utils.bytesToHex(ekey), Utils.bytesToHex(eiv)));
             return Optional.empty();
         } else if (setup.containsKey("streams")) {
             Log.d(TAG, String.format("RTSP SETUP streams:\n%s", setup.toXMLPropertyList()));
@@ -57,19 +62,22 @@ public class RTSP {
         int type = (int) stream.get("type");
         switch (type) {
 
-            // video stream
+                // video stream
             case 110:
                 if (stream.containsKey("streamConnectionID")) {
-                    streamConnectionID = Long.toUnsignedString((long) stream.get("streamConnectionID"));
+                    streamConnectionID =
+                            Long.toUnsignedString((long) stream.get("streamConnectionID"));
                 }
                 return new VideoStreamInfo(streamConnectionID);
 
                 // audio stream
             case 96:
-                AudioStreamInfo.AudioStreamInfoBuilder builder = new AudioStreamInfo.AudioStreamInfoBuilder();
+                AudioStreamInfo.AudioStreamInfoBuilder builder =
+                        new AudioStreamInfo.AudioStreamInfoBuilder();
                 if (stream.containsKey("ct")) {
                     int compressionType = (int) stream.get("ct");
-                    builder.compressionType(AudioStreamInfo.CompressionType.fromCode(compressionType));
+                    builder.compressionType(
+                            AudioStreamInfo.CompressionType.fromCode(compressionType));
                 }
                 if (stream.containsKey("audioFormat")) {
                     long audioFormatCode = (int) stream.get("audioFormat"); // int or long ?!

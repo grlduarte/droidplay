@@ -6,9 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
 
-/**
- * Responds on pairing setup, fairplay setup requests, decrypts data
- */
+/** Responds on pairing setup, fairplay setup requests, decrypts data */
 public class AirPlay {
 
     private final Pairing pairing;
@@ -26,8 +24,8 @@ public class AirPlay {
 
     /**
      * {@code /pair-setup}
-     * <p>
-     * Writes EdDSA public key bytes to output stream
+     *
+     * <p>Writes EdDSA public key bytes to output stream
      */
     public void pairSetup(OutputStream out) throws Exception {
         pairing.pairSetup(out);
@@ -35,25 +33,23 @@ public class AirPlay {
 
     /**
      * {@code /pair-verify}
-     * <p>
-     * On first request writes curve25519 public key + encrypted signature bytes to output stream;
-     * On second request verifies signature
+     *
+     * <p>On first request writes curve25519 public key + encrypted signature bytes to output
+     * stream; On second request verifies signature
      */
     public void pairVerify(InputStream in, OutputStream out) throws Exception {
         pairing.pairVerify(in, out);
     }
 
-    /**
-     * Pair was verified successfully
-     */
+    /** Pair was verified successfully */
     public boolean isPairVerified() {
         return pairing.isPairVerified();
     }
 
     /**
      * {@code /fp-setup}
-     * <p>
-     * Writes fp-setup response bytes to output stream
+     *
+     * <p>Writes fp-setup response bytes to output stream
      */
     public void fairPlaySetup(InputStream in, OutputStream out) throws Exception {
         fairplay.fairPlaySetup(in, out);
@@ -61,8 +57,8 @@ public class AirPlay {
 
     /**
      * {@code RTSP SETUP}
-     * <p>
-     * Sets encrypted EAS key and IV or retrieves media stream info
+     *
+     * <p>Sets encrypted EAS key and IV or retrieves media stream info
      */
     public Optional<MediaStreamInfo> rtspSetup(InputStream in) throws Exception {
         return rtsp.setup(in);
@@ -70,23 +66,25 @@ public class AirPlay {
 
     /**
      * {@code RTSP TEARDOWN}
-     * <p>
-     * Retrieves media stream info
+     *
+     * <p>Retrieves media stream info
      */
     public Optional<MediaStreamInfo> rtspTeardown(InputStream in) throws Exception {
         return rtsp.teardown(in);
     }
-
 
     public byte[] getFairPlayAesKey() {
         return fairplay.decryptAesKey(rtsp.getEkey());
     }
 
     /**
-     * @return {@code true} if we got shared secret during pairing, ekey & stream connection id during RTSP SETUP
+     * @return {@code true} if we got shared secret during pairing, ekey & stream connection id
+     *     during RTSP SETUP
      */
     public boolean isFairPlayVideoDecryptorReady() {
-        return pairing.getSharedSecret() != null && rtsp.getEkey() != null && rtsp.getStreamConnectionID() != null;
+        return pairing.getSharedSecret() != null
+                && rtsp.getEkey() != null
+                && rtsp.getStreamConnectionID() != null;
     }
 
     /**
@@ -101,7 +99,11 @@ public class AirPlay {
             if (!isFairPlayVideoDecryptorReady()) {
                 throw new IllegalStateException("FairPlayVideoDecryptor not ready!");
             }
-            fairPlayVideoDecryptor = new FairPlayVideoDecryptor(getFairPlayAesKey(), pairing.getSharedSecret(), rtsp.getStreamConnectionID());
+            fairPlayVideoDecryptor =
+                    new FairPlayVideoDecryptor(
+                            getFairPlayAesKey(),
+                            pairing.getSharedSecret(),
+                            rtsp.getStreamConnectionID());
         }
         fairPlayVideoDecryptor.decrypt(video);
     }
@@ -111,7 +113,9 @@ public class AirPlay {
             if (!isFairPlayAudioDecryptorReady()) {
                 throw new IllegalStateException("FairPlayAudioDecryptor not ready!");
             }
-            fairPlayAudioDecryptor = new FairPlayAudioDecryptor(getFairPlayAesKey(), rtsp.getEiv(), pairing.getSharedSecret());
+            fairPlayAudioDecryptor =
+                    new FairPlayAudioDecryptor(
+                            getFairPlayAesKey(), rtsp.getEiv(), pairing.getSharedSecret());
         }
         fairPlayAudioDecryptor.decrypt(audio, audioLength);
     }

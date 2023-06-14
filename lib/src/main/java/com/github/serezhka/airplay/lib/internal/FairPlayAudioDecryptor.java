@@ -1,10 +1,11 @@
 package com.github.serezhka.airplay.lib.internal;
 
+import java.security.MessageDigest;
+import java.util.Arrays;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.MessageDigest;
-import java.util.Arrays;
 
 public class FairPlayAudioDecryptor {
 
@@ -13,7 +14,8 @@ public class FairPlayAudioDecryptor {
 
     private final Cipher aesCbcDecrypt;
 
-    public FairPlayAudioDecryptor(byte[] aesKey, byte[] aesIV, byte[] sharedSecret) throws Exception {
+    public FairPlayAudioDecryptor(byte[] aesKey, byte[] aesIV, byte[] sharedSecret)
+            throws Exception {
         this.aesIV = aesIV;
 
         MessageDigest sha512Digest = MessageDigest.getInstance("SHA-512");
@@ -30,6 +32,7 @@ public class FairPlayAudioDecryptor {
     }
 
     private void initAesCbcCipher() throws Exception {
-        aesCbcDecrypt.init(Cipher.DECRYPT_MODE, new SecretKeySpec(eaesKey, "AES"), new IvParameterSpec(aesIV));
+        aesCbcDecrypt.init(
+                Cipher.DECRYPT_MODE, new SecretKeySpec(eaesKey, "AES"), new IvParameterSpec(aesIV));
     }
 }

@@ -3,13 +3,13 @@ package com.github.serezhka.airplay.server.internal.handler.audio;
 import com.github.serezhka.airplay.lib.AirPlay;
 import com.github.serezhka.airplay.server.AirPlayConsumer;
 import com.github.serezhka.airplay.server.internal.packet.AudioPacket;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
-
-import android.util.Log;
 
 @RequiredArgsConstructor
 public class AudioHandler extends ChannelInboundHandlerAdapter {
@@ -45,8 +45,13 @@ public class AudioHandler extends ChannelInboundHandlerAdapter {
         if (curSeqNo - prevSeqNum == 1 || prevSeqNum == 0) {
             AudioPacket audioPacket = buffer[curSeqNo % buffer.length];
             if (audioPacket != null && audioPacket.isAvailable()) {
-                airPlay.decryptAudio(audioPacket.getEncodedAudio(), audioPacket.getEncodedAudioSize());
-                dataConsumer.onAudio(Arrays.copyOfRange(audioPacket.getEncodedAudio(), 0, audioPacket.getEncodedAudioSize()));
+                airPlay.decryptAudio(
+                        audioPacket.getEncodedAudio(), audioPacket.getEncodedAudioSize());
+                dataConsumer.onAudio(
+                        Arrays.copyOfRange(
+                                audioPacket.getEncodedAudio(),
+                                0,
+                                audioPacket.getEncodedAudioSize()));
                 audioPacket.available(false);
                 prevSeqNum = curSeqNo;
                 packetsInBuffer--;

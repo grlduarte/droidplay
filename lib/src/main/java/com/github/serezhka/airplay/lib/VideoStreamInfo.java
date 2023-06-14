@@ -19,8 +19,6 @@ public class VideoStreamInfo implements MediaStreamInfo {
 
     @Override
     public String toString() {
-        return "VideoStreamInfo{" +
-                "streamConnectionId='" + streamConnectionId + '\'' +
-                '}';
+        return "VideoStreamInfo{" + "streamConnectionId='" + streamConnectionId + '\'' + '}';
     }
 }

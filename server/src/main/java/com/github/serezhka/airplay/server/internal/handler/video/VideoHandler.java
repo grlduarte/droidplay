@@ -1,16 +1,18 @@
 package com.github.serezhka.airplay.server.internal.handler.video;
 
+import android.util.Log;
+
 import com.github.serezhka.airplay.lib.AirPlay;
 import com.github.serezhka.airplay.server.AirPlayConsumer;
 import com.github.serezhka.airplay.server.internal.packet.VideoPacket;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import lombok.RequiredArgsConstructor;
 
-import android.util.Log;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @ChannelHandler.Sharable
@@ -40,7 +42,11 @@ public class VideoHandler extends ChannelInboundHandlerAdapter {
     private void preparePictureNALUnits(byte[] payload) {
         int idx = 0;
         while (idx < payload.length) {
-            int naluSize = (payload[idx + 3] & 0xFF) | ((payload[idx + 2] & 0xFF) << 8) | ((payload[idx + 1] & 0xFF) << 16) | ((payload[idx] & 0xFF) << 24);
+            int naluSize =
+                    (payload[idx + 3] & 0xFF)
+                            | ((payload[idx + 2] & 0xFF) << 8)
+                            | ((payload[idx + 1] & 0xFF) << 16)
+                            | ((payload[idx] & 0xFF) << 24);
             if (naluSize > 0) {
                 payload[idx] = 0;
                 payload[idx + 1] = 0;

@@ -1,9 +1,12 @@
 package com.github.serezhka.airplay.server.internal;
 
+import android.util.Log;
+
 import com.github.serezhka.airplay.lib.AirPlay;
 import com.github.serezhka.airplay.server.AirPlayConsumer;
 import com.github.serezhka.airplay.server.internal.decoder.VideoDecoder;
 import com.github.serezhka.airplay.server.internal.handler.video.VideoHandler;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -15,12 +18,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.net.InetSocketAddress;
-
-import android.util.Log;
 
 @RequiredArgsConstructor
 public class VideoServer implements Runnable {
@@ -31,8 +33,7 @@ public class VideoServer implements Runnable {
     private Thread thread;
     private AirPlayConsumer airPlayConsumer;
 
-    @Getter
-    private int port;
+    @Getter private int port;
 
     public void start(AirPlayConsumer airPlayConsumer) throws InterruptedException {
         this.airPlayConsumer = airPlayConsumer;
@@ -61,20 +62,29 @@ public class VideoServer implements Runnable {
                     .group(bossGroup, workerGroup)
                     .channel(serverSocketChannelClass())
                     .localAddress(new InetSocketAddress(0)) // bind random port
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(final SocketChannel ch) {
-                            ch.pipeline().addLast("videoDecoder", new VideoDecoder());
-                            ch.pipeline().addLast("videoHandler", new VideoHandler(airPlay, airPlayConsumer));
-                        }
-                    })
+                    .childHandler(
+                            new ChannelInitializer<SocketChannel>() {
+                                @Override
+                                public void initChannel(final SocketChannel ch) {
+                                    ch.pipeline().addLast("videoDecoder", new VideoDecoder());
+                                    ch.pipeline()
+                                            .addLast(
+                                                    "videoHandler",
+                                                    new VideoHandler(airPlay, airPlayConsumer));
+                                }
+                            })
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .childOption(ChannelOption.SO_REUSEADDR, true)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             var channelFuture = serverBootstrap.bind().sync();
 
-            Log.i(TAG, String.format("AirPlay video server listening on port: %d",
-                    port = ((InetSocketAddress) channelFuture.channel().localAddress()).getPort()));
+            Log.i(
+                    TAG,
+                    String.format(
+                            "AirPlay video server listening on port: %d",
+                            port =
+                                    ((InetSocketAddress) channelFuture.channel().localAddress())
+                                            .getPort()));
 
             synchronized (this) {
                 this.notify();

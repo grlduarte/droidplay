@@ -1,7 +1,11 @@
 package com.github.serezhka.airplay.server.internal.decoder;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.github.serezhka.airplay.server.internal.packet.AudioPacket;
+
 import io.netty.buffer.Unpooled;
+
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -10,15 +14,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class AudioDecoderTest {
 
     private final AudioDecoder decoder = new AudioDecoder();
 
     @Test
     void testDecodeAudioPacketType96Success() throws Exception {
-        Path resource = Paths.get(VideoDecoderTest.class.getResource("/audio_packet_type_96").toURI());
+        Path resource =
+                Paths.get(VideoDecoderTest.class.getResource("/audio_packet_type_96").toURI());
         byte[] bytes = Files.readAllBytes(resource);
 
         List<Object> result = new ArrayList<>();

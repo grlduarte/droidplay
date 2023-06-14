@@ -5,10 +5,11 @@ import java.nio.ByteOrder;
 
 public class ModifiedMD5 {
 
-    private final int[] shift = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
-            5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
-            4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
-            6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
+    private final int[] shift = {
+        7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5,
+        9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10,
+        15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
+    };
 
     void modified_md5(byte[] originalblockIn, byte[] keyIn, byte[] keyOut) {
         byte[] blockIn = new byte[64];
@@ -37,7 +38,11 @@ public class ModifiedMD5 {
                 j = 7 * i % 16;
             }
 
-            input = ((blockIn[4 * j] & 0xFF) << 24) | ((blockIn[4 * j + 1] & 0xFF) << 16) | ((blockIn[4 * j + 2] & 0xFF) << 8) | (blockIn[4 * j + 3] & 0xFF);
+            input =
+                    ((blockIn[4 * j] & 0xFF) << 24)
+                            | ((blockIn[4 * j + 1] & 0xFF) << 16)
+                            | ((blockIn[4 * j + 2] & 0xFF) << 8)
+                            | (blockIn[4 * j + 3] & 0xFF);
             Z = A + input + (long) ((1L << 32) * Math.abs(Math.sin(i + 1)));
             if (i < 16) {
                 Z = rol(Z + F(B, C, D), shift[i]);
@@ -60,7 +65,10 @@ public class ModifiedMD5 {
                 swap(blockIn, 4 * (int) (C & 15), 4 * (int) (D & 15));
                 swap(blockIn, 4 * (int) ((A & (15 << 4)) >> 4), 4 * (int) ((B & (15 << 4)) >> 4));
                 swap(blockIn, 4 * (int) ((A & (15 << 8)) >> 8), 4 * (int) ((B & (15 << 8)) >> 8));
-                swap(blockIn, 4 * (int) ((A & (15 << 12)) >> 12), 4 * (int) ((B & (15 << 12)) >> 12));
+                swap(
+                        blockIn,
+                        4 * (int) ((A & (15 << 12)) >> 12),
+                        4 * (int) ((B & (15 << 12)) >> 12));
             }
         }
 

@@ -1,20 +1,17 @@
 package com.github.serezhka.airplay.lib.internal;
 
+import android.util.Log;
+
 import net.i2p.crypto.eddsa.EdDSAEngine;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import net.i2p.crypto.eddsa.KeyPairGenerator;
 import net.i2p.crypto.eddsa.Utils;
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
+
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,7 +19,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Arrays;
 
-import android.util.Log;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Pairing {
     private static String TAG = "Pairing";
@@ -45,7 +47,15 @@ public class Pairing {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void pairVerify(InputStream request, OutputStream response) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException, BadPaddingException, IllegalBlockSizeException, IOException {
+    public void pairVerify(InputStream request, OutputStream response)
+            throws NoSuchAlgorithmException,
+                    NoSuchPaddingException,
+                    InvalidAlgorithmParameterException,
+                    InvalidKeyException,
+                    SignatureException,
+                    BadPaddingException,
+                    IllegalBlockSizeException,
+                    IOException {
         int flag = request.read();
         request.skip(3);
         if (flag > 0) {
@@ -56,7 +66,8 @@ public class Pairing {
             Curve25519KeyPair curve25519KeyPair = curve25519.generateKeyPair();
 
             ecdhOurs = curve25519KeyPair.getPublicKey();
-            ecdhSecret = curve25519.calculateAgreement(ecdhTheirs, curve25519KeyPair.getPrivateKey());
+            ecdhSecret =
+                    curve25519.calculateAgreement(ecdhTheirs, curve25519KeyPair.getPrivateKey());
             Log.i(TAG, "Shared secret: " + Utils.bytesToHex(ecdhSecret));
 
             Cipher aesCtr128Encrypt = initCipher();
@@ -73,7 +84,12 @@ public class Pairing {
 
             byte[] responseContent = new byte[ecdhOurs.length + encryptedSignature.length];
             System.arraycopy(ecdhOurs, 0, responseContent, 0, ecdhOurs.length);
-            System.arraycopy(encryptedSignature, 0, responseContent, ecdhOurs.length, encryptedSignature.length);
+            System.arraycopy(
+                    encryptedSignature,
+                    0,
+                    responseContent,
+                    ecdhOurs.length,
+                    encryptedSignature.length);
 
             response.write(responseContent);
         } else {
@@ -91,7 +107,11 @@ public class Pairing {
             System.arraycopy(ecdhOurs, 0, sigMessage, 32, 32);
 
             EdDSAEngine edDSAEngine = new EdDSAEngine();
-            EdDSAPublicKey edDSAPublicKey = new EdDSAPublicKey(new EdDSAPublicKeySpec(edTheirs, EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)));
+            EdDSAPublicKey edDSAPublicKey =
+                    new EdDSAPublicKey(
+                            new EdDSAPublicKeySpec(
+                                    edTheirs,
+                                    EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)));
             edDSAEngine.initVerify(edDSAPublicKey);
 
             pairVerified = edDSAEngine.verifyOneShot(sigMessage, sigBuffer);
@@ -107,7 +127,11 @@ public class Pairing {
         return ecdhSecret;
     }
 
-    private Cipher initCipher() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+    private Cipher initCipher()
+            throws NoSuchAlgorithmException,
+                    NoSuchPaddingException,
+                    InvalidAlgorithmParameterException,
+                    InvalidKeyException {
         MessageDigest sha512Digest = MessageDigest.getInstance("SHA-512");
         sha512Digest.update("Pair-Verify-AES-Key".getBytes(StandardCharsets.UTF_8));
         sha512Digest.update(ecdhSecret);
@@ -118,7 +142,10 @@ public class Pairing {
         byte[] sharedSecretSha512AesIV = Arrays.copyOfRange(sha512Digest.digest(), 0, 16);
 
         Cipher aesCtr128Encrypt = Cipher.getInstance("AES/CTR/NoPadding");
-        aesCtr128Encrypt.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(sharedSecretSha512AesKey, "AES"), new IvParameterSpec(sharedSecretSha512AesIV));
+        aesCtr128Encrypt.init(
+                Cipher.ENCRYPT_MODE,
+                new SecretKeySpec(sharedSecretSha512AesKey, "AES"),
+                new IvParameterSpec(sharedSecretSha512AesIV));
         return aesCtr128Encrypt;
     }
 }
