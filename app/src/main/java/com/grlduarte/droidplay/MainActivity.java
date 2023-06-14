@@ -1,67 +1,58 @@
 package com.grlduarte.droidplay;
 
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.github.serezhka.airplay.server.AirPlayConfig;
-import com.github.serezhka.airplay.server.AirPlayServer;
-
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private AirPlayServer airPlayServer;
-    private StreamConsumer streamConsumer;
+    private AirPlaySurfaceView airPlaySurfaceView;
+    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Context context = getApplicationContext();
-        Log.d(TAG, "Creating activity");
+        setContentView(R.layout.activity_main);
 
-        try {
-            AirPlayConfig config = AirPlayConfig.DISPLAY_METRICS_30FPS;
-            config.setAacEldAudioSupported(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU);
+        textView = (TextView) findViewById(R.id.waiting_connection);
+        textView.setText("AirPlay discovery enabled");
 
-            streamConsumer = new StreamConsumer(config);
-            airPlayServer = new AirPlayServer(this, config, streamConsumer);
-            airPlayServer.start();
-
-            setContentView(R.layout.activity_main);
-
-            SurfaceView surfaceView = (SurfaceView) findViewById(R.id.video_layout);
-            SurfaceHolder holder = surfaceView.getHolder();
-            holder.addCallback(this);
-        } catch (Exception ex) {
-            Log.e(TAG, "Error while starting AirPlayServer", ex);
-            this.finish();
-        }
+        airPlaySurfaceView = (AirPlaySurfaceView) findViewById(R.id.airplay_stream);
+        airPlaySurfaceView.init(visibilityCallback);
     }
+
+    private AirPlaySurfaceView.VisibilityCallback visibilityCallback =
+            new AirPlaySurfaceView.VisibilityCallback() {
+                @Override
+                void showSurface() {
+                    runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    airPlaySurfaceView.setVisibility(View.VISIBLE);
+                                    textView.setVisibility(View.INVISIBLE);
+                                }
+                            });
+                }
+
+                void hideSurface() {
+                    runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    textView.setVisibility(View.VISIBLE);
+                                    airPlaySurfaceView.setVisibility(View.GONE);
+                                }
+                            });
+                }
+            };
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        airPlayServer.stop();
-        streamConsumer.stop();
+        airPlaySurfaceView.stop();
     }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        try {
-            streamConsumer.init(holder.getSurface());
-        } catch (Exception ex) {
-            Log.e(TAG, ex.toString(), ex);
-        }
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {}
 }
