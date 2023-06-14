@@ -161,7 +161,14 @@ public class VideoDecoder extends Thread {
 
                 @Override
                 public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
-                    Log.d(TAG, "Output format changed: " + format.toString());
+                    float width = (float) format.getInteger(MediaFormat.KEY_WIDTH);
+                    float height = (float) format.getInteger(MediaFormat.KEY_HEIGHT);
+
+                    float scale =
+                            (width > height) // check the video orientation
+                                    ? ((float) videoWidth / width)
+                                    : ((float) videoHeight / height);
+                    holder.setFixedSize((int) (scale * width), (int) (scale * height));
                 }
             };
 }
